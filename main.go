@@ -13,11 +13,14 @@ type Pet struct {
 	FavoriteFood string `json:"favoritefood"`
 }
 
+var petCollection = []Pet{}
+
 func welcomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome to the pet matching server!")
 }
 
 func getHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "Application/json")
 	pet := Pet{
 		Type:         "Dog",
 		Name:         "Cookie",
@@ -28,8 +31,9 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(pet); err != nil {
 		fmt.Println(err)
 	}
-	w.Header().Set("Content-Type", "Application/json")
-
+	for _, value := range petCollection {
+		fmt.Fprintf(w, "{\"type\": \"%s\",\"name\": \"%s\",\"age\": %v,\"favoritefood\": \"%s\"}\n", value.Type, value.Name, value.Age, value.FavoriteFood)
+	}
 }
 
 func postHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +44,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(pet)
+	petCollection = append(petCollection, pet)
 	if err := json.NewEncoder(w).Encode(pet); err != nil {
 		fmt.Println(err)
 	}
